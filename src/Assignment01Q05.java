@@ -2,14 +2,13 @@ public class Assignment01Q05 {
 
     /**
      * checks if a includes b.
-     * 
      * @param a
      * @param b
-     * @return false if there exists i s.t. a[i]=0 and b[i]=1, otherwise true
+     * @return false if there exists i s.t. a[i]=false and b[i]=true, otherwise true
      */
-    private static boolean arrayIncludes(int[] a, int[] b) {
+    private static boolean arrayIncludes(boolean[] a, boolean[] b) {
         for (int i = 0; i < a.length; i++) {
-            if (a[i] < b[i])
+            if (!a[i] && b[i])
                 return false;
         }
         return true;
@@ -18,20 +17,26 @@ public class Assignment01Q05 {
     public static int findShortestPath(int[][] m, int start, int end) {
         if (start == end)
             return 0;
-        int[] visitedPoints = new int[m.length];
-        int[] newPoints = new int[visitedPoints.length];
-        visitedPoints[start] = 1;
+
+        // all points that have been visited
+        boolean[] visitedPoints = new boolean[m.length];
+        // (calculated in loop) points that can be accessed from visitedPoints
+        boolean[] newPoints = new boolean[m.length];
+        // newPoints that are not in visitedPoints
+        boolean[] completelyNewPoints = new boolean[m.length];
+        visitedPoints[start] = true;
+        completelyNewPoints[start] =true;
         int steps = 0;
 
         while (true) {
             steps++;
             // Add all points which can be visited immediately from any of the points that
             // have been visited
-            for (int i = 0; i < visitedPoints.length; i++) {
-                if (visitedPoints[i] == 1) {
+            for (int i = 0; i < completelyNewPoints.length; i++) {
+                if (completelyNewPoints[i]) {
                     int[] pointsToAdd = m[i];
                     for (int j = 0; j < pointsToAdd.length; j++) {
-                        newPoints[j] |= pointsToAdd[j];
+                        newPoints[j] |= pointsToAdd[j] == 1;
                     }
                 }
             }
@@ -39,8 +44,13 @@ public class Assignment01Q05 {
             // if no new points can be reached
             if (arrayIncludes(visitedPoints, newPoints))
                 return -1;
-            if (newPoints[end] == 1)
+            if (newPoints[end])
                 return steps;
+
+            for (int i = 0; i < newPoints.length; i++) {
+                completelyNewPoints[i] = newPoints[i] && !visitedPoints[i];
+            }
+            // add newPoints to visitedPoints
             for (int i = 0; i < newPoints.length; i++) {
                 visitedPoints[i] |= newPoints[i];
             }
